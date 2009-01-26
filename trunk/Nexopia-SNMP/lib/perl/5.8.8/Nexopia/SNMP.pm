@@ -94,7 +94,7 @@ sub request_handler($$$$$)
 		{
 			if ($requested_oid < $self->{lowest_oid})
 			{
-				# The requested OID is lower than ours, so just return ours.
+				# The requested OID is lower than our lowest OID, so just return our lowest OID.
 				$self->assign_result($request, $self->{lowest_oid});
 			}
 			elsif ($requested_oid < $self->{highest_oid})
