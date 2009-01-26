@@ -109,7 +109,7 @@ sub request_handler($$$$$)
 				{
 					$next_oid = $self->{sorted_oid_list}->[$i];
 					$i++;
-				} while (NetSNMP::OID::compare($requested_oid, $next_oid) > -1 and $i < scalar @{$self->{sorted_oid_list}});
+				} while ((NetSNMP::OID::compare($requested_oid, $next_oid) > -1) and ($i < scalar(@{$self->{sorted_oid_list}})));
 
 				if (defined $next_oid)
 				{
