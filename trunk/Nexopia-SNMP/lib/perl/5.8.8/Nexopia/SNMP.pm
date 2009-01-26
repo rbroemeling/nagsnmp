@@ -57,17 +57,15 @@ sub initialize_snmpwalk($)
 {
 	my ($self) = @_;
 
-	my @sorted_oid_list = @{$self->{sorted_oid_list}};
-
 	$self->update_cache();
 	foreach (sort {$a <=> $b} map { $_ = new NetSNMP::OID($_) } keys %{$self->{cache}})
 	{
-		$sorted_oid_list[++$#sorted_oid_list] = $_;
+		push(@{$self->{sorted_oid_list}}, $_);
 	}
-	if ($#sorted_oid_list > -1)
+	if (scalar(@{$self->{sorted_oid_list}}) > -1)
 	{
-		$self->{highest_oid} = $sorted_oid_list[$#sorted_oid_list];
-		$self->{lowest_oid} = $sorted_oid_list[0];
+		$self->{highest_oid} = $self->{sorted_oid_list}->[scalar(@{$self->{sorted_oid_list}})];
+		$self->{lowest_oid} = $self->{sorted_oid_list}->[0];
 	}
 	else
 	{
