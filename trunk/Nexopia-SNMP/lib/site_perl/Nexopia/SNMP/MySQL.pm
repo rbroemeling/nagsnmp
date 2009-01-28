@@ -3,6 +3,7 @@
 package Nexopia::SNMP::MySQL;
 
 use DBI;
+use Log::Log4perl;
 use NetSNMP::ASN;
 use NetSNMP::OID;
 use Nexopia::SNMP;
@@ -16,8 +17,8 @@ sub new($)
 
 	my $self = Nexopia::SNMP->new(@_);
 
-	# We handle the .69775 (.MYSQL) sub-tree of our parent OID.
-	$self->{source_oid} += '.69775';
+	# Update our logger-singleton with a new environment for this class.
+	$self->{logger} = Log::Log4perl->get_logger(__PACKAGE__);
 
 	# Append the appropriate suffix to our SNMP module name.
 	$self->{module_name} .= '_MySQL';
@@ -33,6 +34,9 @@ sub new($)
 
 	# MySQL user used to monitor.
 	$self->{mysql_username} = 'monitor';
+
+	# We handle the .69775 (.MYSQL) sub-tree of our parent OID.
+	$self->{source_oid} += '.69775';
 
 	bless $self, $class;
 
