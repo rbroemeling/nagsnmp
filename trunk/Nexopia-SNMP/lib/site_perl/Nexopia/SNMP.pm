@@ -32,8 +32,8 @@ sub new($)
 		# The SNMP module name that should represent this module.
 		module_name => 'Nexopia_SNMP',
 
-		# A sorted list of OIDs that this module handles, needed to answer a GETNEXT request.
-		sorted_oid_list => [],
+		# A hash of OIDs, pointing to the 'next' OID.  Needed to answer a GETNEXT request.
+		next_oid => {},
 
 		# The OID prefix that this module is responsible for.
 		#  .iso.org.dod.internet.private.enterprises.6396742
@@ -49,7 +49,7 @@ sub assign_result($$$)
 {
 	my ($self, $request, $requested_oid) = @_;
 
-
+	$requested_oid = '.' . join('.', $requested_oid->to_array());
 	if (! defined $self->{cache}->{$requested_oid})
 	{
 		$self->{logger}->warn('assign_result called with an undefined OID ' . $requested_oid);
@@ -69,24 +69,25 @@ sub assign_result($$$)
 sub initialize_snmpwalk($)
 {
 	my ($self) = @_;
+	my @sorted_oid = ();
 
 	$self->update_cache();
 	foreach (sort {$a <=> $b} map { $_ = new NetSNMP::OID($_) } keys %{$self->{cache}})
 	{
-		push(@{$self->{sorted_oid_list}}, $_);
+		push(@sorted_oid, $_);
 	}
-	$self->{logger}->debug('initialize_snmpwalk determined sorted OID list [ ' . join(', ', @{$self->{sorted_oid_list}}) . ' ]');
-	if (scalar(@{$self->{sorted_oid_list}}) > 0)
+	$self->{logger}->debug('initialize_snmpwalk determined sorted OID list [ ' . join(', ', @sorted_oid) . ' ]');
+	if ($#sorted_oid > -1)
 	{
-		$self->{highest_oid} = $self->{sorted_oid_list}->[scalar(@{$self->{sorted_oid_list}}) - 1];
-		$self->{lowest_oid} = $self->{sorted_oid_list}->[0];
-		$self->{logger}->debug('initialize_snmpwalk determined lowest/highest OID to be ' . $self->{lowest_oid} . '/' . $self->{highest_oid})
-	}
-	else
-	{
-		$self->{logger}->warn('initialize_snmpwalk unable to determine lowest/highest OID from empty sorted OID list');
-		$self->{highest_oid} = undef;
-		$self->{lowest_oid} = undef;
+		for (my $i = 0; $i < $#sorted_oid; $i++)
+		{
+			$self->{logger}->debug('initialize_snmpwalk determined next OID after ' . $sorted_oid[$i] . ' is ' . $sorted_oid[$i + 1]);
+			$self->{next_oid}->{$sorted_oid[$i]} = $sorted_oid[$i + 1];
+		}
+		$self->{lowest_oid} = $sorted_oid[0];
+		$self->{logger}->debug('initialize_snmpwalk determined lowest OID to be ' . $self->{lowest_oid});
+		$self->{highest_oid} = $sorted_oid[$#sorted_oid];
+		$self->{logger}->debug('initialize_snmpwalk determined highest OID to be ' . $self->{highest_oid});
 	}
 }
 
@@ -117,37 +118,12 @@ sub request_handler($$$$$)
 				$self->{logger}->debug($requested_oid . ' < ' . $self->{lowest_oid} . ', returning ' . $self->{lowest_oid});
 				$self->assign_result($request, $self->{lowest_oid});
 			}
-			elsif ($requested_oid < $self->{highest_oid})
+			elsif (defined $self->{next_oid}->{$requested_oid})
 			{
-				# The requested OID is somewhere within the range $self->{lowest_oid}:$self->{highest_oid},
-				# so return the first one after it.
-				my $i = 0;
-				my $next_oid = undef;
-
-				# Carry out a linear search of $self->{sorted_oid_list}.
-				do
-				{
-					$next_oid = $self->{sorted_oid_list}->[$i];
-					$i++;
-				} while ((NetSNMP::OID::compare($requested_oid, $next_oid) > -1) and ($i < scalar(@{$self->{sorted_oid_list}})));
-				$self->{logger}->debug('Next OID after ' . $requested_oid . ' is ' . $next_oid);
-
-				if (defined $next_oid)
-				{
-					# We found the next OID successfully, so we return it.
-					$self->assign_result($request, $next_oid);
-				}
+				$self->assign_result($request, $self->{next_oid}->{$requested_oid});
 			}
 		}
 	}
-}
-
-
-sub update_cache($)
-{
-	my ($self) = @_;
-
-	$self->{cache_timestamp} = time();
 }
 
 
