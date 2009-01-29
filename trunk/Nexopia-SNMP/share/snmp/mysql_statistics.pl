@@ -1,13 +1,17 @@
+#!/usr/bin/perl -w
 # $Id$
 
+use File::Basename;
 use Log::Log4perl;
 use Log::Log4perl::Layout;
 use Log::Log4perl::Level;
+use NetSNMP::agent;
 use Nexopia::SNMP::MySQL;
+use strict;
 
 # Setup logging for this SNMP plugin.
+my $logger = Log::Log4perl->get_logger;
 {
-	my $logger = Log::Log4perl->get_logger;
 	$logger->level($DEBUG);
 	my $Syslog_Layout = Log::Log4perl::Layout::PatternLayout->new('[%L/%p] %m%n');
 
@@ -23,11 +27,21 @@ use Nexopia::SNMP::MySQL;
 	$logger->add_appender($Syslog);
 }
 
-# Register ourselves with the SNMP agent.
+# Start our own subagent to integrate with SNMPD and register ourselves.
+my $snmp = Nexopia::SNMP::MySQL->new;
+my $agent = new NetSNMP::agent('Name' => $snmp->{module_name} . '_Agent', 'AgentX' => 1);
 if (! $agent)
 {
-	print STDERR $0 . " currently only supports embedded perl mode.\n";
-	exit -1;
+	$logger->error('Could not connect to master SNMP agent, exiting');
+	exit -2;
 }
-my $snmp = Nexopia::SNMP::MySQL->new;
 $agent->register($snmp->{module_name}, $snmp->{source_oid}, sub { return $snmp->request_handler(@_); });
+
+my $running = 1;
+$SIG{'INT'} = sub { $running = 0; };
+$SIG{'QUIT'} = sub { $running = 0; };
+while ($running)
+{
+	$agent->agent_check_and_process(1);  # 1 = block
+}
+$agent->shutdown();
