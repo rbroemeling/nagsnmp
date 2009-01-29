@@ -38,7 +38,7 @@ sub new($)
 		# The OID prefix that this module is responsible for.
 		#  .iso.org.dod.internet.private.enterprises.6396742
 		#  .iso.org.dod.internet.private.enterprises.NEXOPIA
-		source_oid => new NetSNMP::OID('.1.3.6.1.4.1.6396742')
+		source_oid => '.1.3.6.1.4.1.6396742'
 	};
 	bless $self, $class;
 	return $self;
@@ -76,9 +76,9 @@ sub initialize_snmpwalk($)
 		push(@{$self->{sorted_oid_list}}, $_);
 	}
 	$self->{logger}->debug('initialize_snmpwalk determined sorted OID list [ ' . join(', ', @{$self->{sorted_oid_list}}) . ' ]');
-	if (scalar(@{$self->{sorted_oid_list}}) > -1)
+	if (scalar(@{$self->{sorted_oid_list}}) > 0)
 	{
-		$self->{highest_oid} = $self->{sorted_oid_list}->[scalar(@{$self->{sorted_oid_list}})];
+		$self->{highest_oid} = $self->{sorted_oid_list}->[scalar(@{$self->{sorted_oid_list}}) - 1];
 		$self->{lowest_oid} = $self->{sorted_oid_list}->[0];
 		$self->{logger}->debug('initialize_snmpwalk determined lowest/highest OID to be ' . $self->{lowest_oid} . '/' . $self->{highest_oid})
 	}

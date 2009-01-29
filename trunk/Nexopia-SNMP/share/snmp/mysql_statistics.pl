@@ -1,7 +1,6 @@
 #!/usr/bin/perl -w
 # $Id$
 
-use File::Basename;
 use Log::Log4perl;
 use Log::Log4perl::Layout;
 use Log::Log4perl::Level;
@@ -10,22 +9,18 @@ use Nexopia::SNMP::MySQL;
 use strict;
 
 # Setup logging for this SNMP plugin.
-my $logger = Log::Log4perl->get_logger;
 {
-	$logger->level($DEBUG);
-	my $Syslog_Layout = Log::Log4perl::Layout::PatternLayout->new('[%L/%p] %m%n');
+	my $logger_configuration = q/
+		log4perl.logger = DEBUG, Syslog
 
-	my $Syslog = Log::Log4perl::Appender->new(
-		'Log::Dispatch::Syslog',
-		facility => 'user',
-		ident => basename($0),
-		logopt => 'nofatal',
-		name => 'Syslog'
-	);
-	$Syslog->layout($Syslog_Layout);
-	$Syslog->threshold($INFO);
-	$logger->add_appender($Syslog);
+		log4perl.appender.Syslog = Log::Dispatch::Syslog
+		log4perl.appender.Syslog.Facility = user
+		log4perl.appender.Syslog.layout = Log::Log4perl::Layout::PatternLayout
+		log4perl.appender.Syslog.layout.ConversionPattern =[%p] %F{1}:%L %m%n
+	/;
+	Log::Log4perl::init(\$logger_configuration);
 }
+my $logger = Log::Log4perl::get_logger('main');
 
 # Start our own subagent to integrate with SNMPD and register ourselves.
 my $snmp = Nexopia::SNMP::MySQL->new;
@@ -33,9 +28,13 @@ my $agent = new NetSNMP::agent('AgentX' => 1, 'Name' => $snmp->{module_name} . '
 if (! $agent)
 {
 	$logger->error('Could not connect to master SNMP agent, exiting');
+	exit -1;
+}
+if (! $agent->register($snmp->{module_name}, $snmp->{source_oid}, sub { return $snmp->request_handler(@_); }))
+{
+	$logger->error('Could not register with master SNMP agent, exiting');
 	exit -2;
 }
-$agent->register($snmp->{module_name}, $snmp->{source_oid}, sub { return $snmp->request_handler(@_); });
 
 my $running = 1;
 $SIG{'INT'} = sub { $running = 0; };
