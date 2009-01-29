@@ -5,6 +5,7 @@ package Nexopia::SNMP;
 use Log::Log4perl;
 use NetSNMP::OID;
 
+
 sub new($)
 {
 	my $class = shift;
@@ -120,6 +121,7 @@ sub request_handler($$$$$)
 			}
 			elsif (defined $self->{next_oid}->{$requested_oid})
 			{
+				# We know what OID comes next after the requested OID, so return it.
 				$self->assign_result($request, $self->{next_oid}->{$requested_oid});
 			}
 		}

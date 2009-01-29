@@ -9,7 +9,7 @@ use Nexopia::SNMP::MySQL;
 # Setup logging for this SNMP plugin.
 {
 	my $logger_configuration = q/
-		log4perl.logger = DEBUG, Syslog
+		log4perl.logger = WARN, Syslog
 
 		log4perl.appender.Syslog = Log::Dispatch::Syslog
 		log4perl.appender.Syslog.Facility = user
@@ -21,14 +21,15 @@ use Nexopia::SNMP::MySQL;
 my $logger = Log::Log4perl::get_logger('main');
 
 # Register ourselves with the SNMP agent.
-if (! $agent)
+if ($agent)
+{
+	my $snmp = Nexopia::SNMP::MySQL->new;
+	if (! $agent->register($snmp->{module_name}, $snmp->{source_oid}, sub { return $snmp->request_handler(@_); }))
+	{
+		$logger->error('Could not register with master SNMP agent, exiting');
+	}
+}
+else
 {
 	$logger->error('Expected master agent to be defined in embedded perl environment, exiting');
-	exit -1;
-}
-my $snmp = Nexopia::SNMP::MySQL->new;
-if (! $agent->register($snmp->{module_name}, $snmp->{source_oid}, sub { return $snmp->request_handler(@_); }))
-{
-	$logger->error('Could not register with master SNMP agent, exiting');
-	exit -2;
 }
