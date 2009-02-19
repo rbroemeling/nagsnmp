@@ -95,6 +95,19 @@ sub dump($$)
 }
 
 
+sub get_environment_setting($$)
+{
+	my ($self, $setting_name) = @_;
+
+	$setting_name = $self->{module_name} . '_' . $setting_name;
+	if (defined $ENV{$setting_name})
+	{
+		return $ENV{$setting_name};
+	}
+	return undef;
+}
+
+
 sub initialize_snmpwalk($)
 {
 	my ($self) = @_;
