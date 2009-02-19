@@ -2,8 +2,8 @@
 
 package Nexopia::SNMP::Memcached;
 
-use Cache::Memcached;
 use Log::Log4perl;
+use Net::Telnet;
 use NetSNMP::ASN;
 use Nexopia::SNMP;
 use vars qw(@ISA);
@@ -50,6 +50,22 @@ sub new($)
 }
 
 
+sub telnet_read_variables($$)
+{
+	my ($self, $telnet) = @_;
+	my %variables = ();
+
+	my $line = $telnet->getline();
+	while ((defined $line) && ($line =~ /^STAT /))
+	{
+		my ($stat_prefix, $variable_name, $value) = grep(!/^\s*$/, split(/ /, $line));
+		$variables{$variable_name} = $value;
+		$line = $telnet->getline();
+	}
+	return \%variables;
+}
+
+
 sub update_cache($)
 {
 	my ($self) = @_;
@@ -71,16 +87,16 @@ sub update_cache($)
 		$self->{cache}->{$source_oid . '.2.2.0'} = { type => NetSNMP::ASN::ASN_GAUGE,   value => undef }; # allocated.bytes.current
 		$self->{cache}->{$source_oid . '.2.2.1'} = { type => NetSNMP::ASN::ASN_GAUGE,   value => undef }; # allocated.bytes.maximum
 
-		my $memcached = new Cache::Memcached { 'servers' => [ $self->{memcached_hostname} . ':' . $port ] };
-		if (! defined $memcached)
+		my $telnet = new Net::Telnet(Host => $self->{memcached_hostname}, Port => $port, Timeout => 1, Errmode => 'return');
+		if (! defined $telnet)
 		{
 			next;
 		}
-		my $stats = $memcached->stats('misc');
-		if (defined $stats->{hosts}->{$self->{memcached_hostname} . ':' . $port}->{misc})
-		{
-			$stats = $stats->{hosts}->{$self->{memcached_hostname} . ':' . $port}->{misc};
-		}
+		$telnet->open() or return;
+		$telnet->print('stats') or return;
+		my $stats = $self->telnet_read_variables($telnet);
+		$telnet->print('quit');
+
 		if (defined $stats->{bytes_read})
 		{
 			$self->{cache}->{$source_oid . '.0.0.0'}->{value} = $stats->{bytes_read};
