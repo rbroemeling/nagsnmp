@@ -15,6 +15,7 @@ sub new($)
 	my $class = $_[0];
 
 	my $self = Nexopia::SNMP->new(@_);
+	bless $self, $class;
 
 	# Update our logger-singleton with a new environment for this class.
 	$self->{logger} = Log::Log4perl->get_logger(__PACKAGE__);
@@ -23,21 +24,35 @@ sub new($)
 	$self->{module_name} .= '_MySQL';
 
 	# MySQL hostname to monitor.
-	$self->{mysql_hostname} = '127.0.0.1';
+	$self->{mysql_hostname} = $self->get_environment_setting('mysql_hostname');
+	if (! defined $self->{mysql_hostname})
+	{
+		$self->{mysql_hostname} = '127.0.0.1';
+	}
 
 	# MySQL user password used to monitor.
-	$self->{mysql_password} = '';
+	$self->{mysql_password} = $self->get_environment_setting('mysql_password');
+	if (! defined $self->{mysql_password})
+	{
+		$self->{mysql_password} = '';
+	}
 
 	# MySQL port used to monitor.
-	$self->{mysql_port} = 3306;
+	$self->{mysql_port} = $self->get_environment_setting('mysql_port');
+	if (! defined $self->{mysql_port})
+	{
+		$self->{mysql_port} = 3306;
+	}
 
 	# MySQL user used to monitor.
-	$self->{mysql_username} = 'monitor';
+	$self->{mysql_username} = $self->get_environment_setting('mysql_username');
+	if (! defined $self->{mysql_username})
+	{
+		$self->{mysql_username} = 'monitor';
+	}
 
 	# We handle the .69775 (.MYSQL) sub-tree of our parent OID.
 	$self->{source_oid} .= '.69775';
-
-	bless $self, $class;
 
 	$self->initialize_snmpwalk();
 	return $self;
