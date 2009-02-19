@@ -20,10 +20,10 @@ use Nexopia::SNMP::MySQL;
 }
 my $logger = Log::Log4perl::get_logger('main');
 
+my $snmp = Nexopia::SNMP::MySQL->new;
 # Register ourselves with the SNMP agent.
 if ($agent)
 {
-	my $snmp = Nexopia::SNMP::MySQL->new;
 	if (! $agent->register($snmp->{module_name}, $snmp->{source_oid}, sub { return $snmp->request_handler(@_); }))
 	{
 		$logger->error('Could not register with master SNMP agent, exiting');
@@ -31,5 +31,7 @@ if ($agent)
 }
 else
 {
-	$logger->error('Expected master agent to be defined in embedded perl environment, exiting');
+	# The SNMP agent does not exist (i.e. we are not in embedded PERL, but are being executed externally).
+	# Assume that we are debugging.
+	$snmp->dump(\*STDOUT);
 }
