@@ -67,6 +67,34 @@ sub assign_result($$$)
 }
 
 
+sub dump($$)
+{
+	my ($self, $fh) = @_;
+
+	my $count = 0;
+	print $fh $self->{module_name} . " OID Cache\n";
+	foreach my $oid (keys %{$self->{cache}})
+	{
+		my $type = $self->{cache}->{$oid}->{type};
+		my $value = $self->{cache}->{$oid}->{value};
+
+		print $fh "\tOID " . $oid . "\t";
+		print $fh '[Type ' . $type . "]\t";
+		if (! defined $value)
+		{
+			print $fh 'undefined';
+		}
+		else
+		{
+			print $fh '"' . $value . '"';
+		}
+		print $fh "\n";
+		$count++;
+	}
+	print $fh $count . " elements in OID cache.\n";
+}
+
+
 sub initialize_snmpwalk($)
 {
 	my ($self) = @_;
