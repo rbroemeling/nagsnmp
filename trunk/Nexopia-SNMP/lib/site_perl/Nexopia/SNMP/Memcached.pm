@@ -80,12 +80,13 @@ sub update_cache($)
 	for (my $i = 0; $i <= $#{$self->{memcached_ports}}; $i++)
 	{
 		my $snmp_index = $i + 1;
-		$self->{cache}->{$self->{source_oid} . '.1.' . $snmp_index} = { type => NetSNMP::ASN::ASN_INTEGER,   value => $self->{memcached_ports}->[$i] };
+		$self->{cache}->{$self->{source_oid} . '.1.' . $snmp_index} = { type => NetSNMP::ASN::ASN_INTEGER,   value => $snmp_index };
+		$self->{cache}->{$self->{source_oid} . '.2.' . $snmp_index} = { type => NetSNMP::ASN::ASN_OCTET_STR, value => $self->{memcached_ports}->[$i] };
 	}
 
 	foreach my $port (@{$self->{memcached_ports}})
 	{
-		my $source_oid = $self->{source_oid} . '.2';
+		my $source_oid = $self->{source_oid} . '.3';
 
 		$self->{cache}->{$source_oid . '.0.0.0.' . $port} = { type => NetSNMP::ASN::ASN_COUNTER, value => undef }; # network.bytes.in
 		$self->{cache}->{$source_oid . '.0.0.1.' . $port} = { type => NetSNMP::ASN::ASN_COUNTER, value => undef }; # network.bytes.out
