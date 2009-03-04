@@ -76,23 +76,23 @@ sub update_cache($)
 	$self->{cache}->{$self->{source_oid} . '.0'} = { type => NetSNMP::ASN::ASN_INTEGER, value => scalar @{$self->{memcached_ports}} };
 	for (my $i = 0; $i <= $#{$self->{memcached_ports}}; $i++)
 	{
+		my $data_source_oid = $self->{source_oid} . '.3';
 		my $snmp_index = $i + 1;
-		my $source_oid = $self->{source_oid} . '.3';
 
 		$self->{cache}->{$self->{source_oid} . '.1.' . $snmp_index} = { type => NetSNMP::ASN::ASN_INTEGER,   value => $snmp_index };
 		$self->{cache}->{$self->{source_oid} . '.2.' . $snmp_index} = { type => NetSNMP::ASN::ASN_OCTET_STR, value => $self->{memcached_ports}->[$i] };
 
-		$self->{cache}->{$source_oid . '.0.0.0.' . $snmp_index} = { type => NetSNMP::ASN::ASN_COUNTER, value => undef }; # network.bytes.in
-		$self->{cache}->{$source_oid . '.0.0.1.' . $snmp_index} = { type => NetSNMP::ASN::ASN_COUNTER, value => undef }; # network.bytes.out
-		$self->{cache}->{$source_oid . '.0.1.0.' . $snmp_index} = { type => NetSNMP::ASN::ASN_GAUGE,   value => undef }; # network.connections.current
-		$self->{cache}->{$source_oid . '.0.1.1.' . $snmp_index} = { type => NetSNMP::ASN::ASN_GAUGE,   value => undef }; # network.connections.structures
-		$self->{cache}->{$source_oid . '.1.0.0.' . $snmp_index} = { type => NetSNMP::ASN::ASN_COUNTER, value => undef }; # commands.get.hits
-		$self->{cache}->{$source_oid . '.1.0.1.' . $snmp_index} = { type => NetSNMP::ASN::ASN_COUNTER, value => undef }; # commands.get.misses
-		$self->{cache}->{$source_oid . '.1.1.'   . $snmp_index} = { type => NetSNMP::ASN::ASN_COUNTER, value => undef }; # commands.set
-		$self->{cache}->{$source_oid . '.2.0.0.' . $snmp_index} = { type => NetSNMP::ASN::ASN_GAUGE,   value => undef }; # allocated.items.current
-		$self->{cache}->{$source_oid . '.2.0.1.' . $snmp_index} = { type => NetSNMP::ASN::ASN_COUNTER, value => undef }; # allocated.items.evictions
-		$self->{cache}->{$source_oid . '.2.2.0.' . $snmp_index} = { type => NetSNMP::ASN::ASN_GAUGE,   value => undef }; # allocated.bytes.current
-		$self->{cache}->{$source_oid . '.2.2.1.' . $snmp_index} = { type => NetSNMP::ASN::ASN_GAUGE,   value => undef }; # allocated.bytes.maximum
+		$self->{cache}->{$data_source_oid . '.0.0.0.' . $snmp_index} = { type => NetSNMP::ASN::ASN_COUNTER, value => undef }; # network.bytes.in
+		$self->{cache}->{$data_source_oid . '.0.0.1.' . $snmp_index} = { type => NetSNMP::ASN::ASN_COUNTER, value => undef }; # network.bytes.out
+		$self->{cache}->{$data_source_oid . '.0.1.0.' . $snmp_index} = { type => NetSNMP::ASN::ASN_GAUGE,   value => undef }; # network.connections.current
+		$self->{cache}->{$data_source_oid . '.0.1.1.' . $snmp_index} = { type => NetSNMP::ASN::ASN_GAUGE,   value => undef }; # network.connections.structures
+		$self->{cache}->{$data_source_oid . '.1.0.0.' . $snmp_index} = { type => NetSNMP::ASN::ASN_COUNTER, value => undef }; # commands.get.hits
+		$self->{cache}->{$data_source_oid . '.1.0.1.' . $snmp_index} = { type => NetSNMP::ASN::ASN_COUNTER, value => undef }; # commands.get.misses
+		$self->{cache}->{$data_source_oid . '.1.1.'   . $snmp_index} = { type => NetSNMP::ASN::ASN_COUNTER, value => undef }; # commands.set
+		$self->{cache}->{$data_source_oid . '.2.0.0.' . $snmp_index} = { type => NetSNMP::ASN::ASN_GAUGE,   value => undef }; # allocated.items.current
+		$self->{cache}->{$data_source_oid . '.2.0.1.' . $snmp_index} = { type => NetSNMP::ASN::ASN_COUNTER, value => undef }; # allocated.items.evictions
+		$self->{cache}->{$data_source_oid . '.2.2.0.' . $snmp_index} = { type => NetSNMP::ASN::ASN_GAUGE,   value => undef }; # allocated.bytes.current
+		$self->{cache}->{$data_source_oid . '.2.2.1.' . $snmp_index} = { type => NetSNMP::ASN::ASN_GAUGE,   value => undef }; # allocated.bytes.maximum
 
 		my $telnet = new Net::Telnet(Host => $self->{memcached_hostname}, Port => $self->{memcached_ports}->[$i], Timeout => 1, Errmode => 'return');
 		if (! defined $telnet)
@@ -106,47 +106,47 @@ sub update_cache($)
 
 		if (defined $stats->{bytes_read})
 		{
-			$self->{cache}->{$source_oid . '.0.0.0.' . $snmp_index}->{value} = $stats->{bytes_read};
+			$self->{cache}->{$data_source_oid . '.0.0.0.' . $snmp_index}->{value} = $stats->{bytes_read};
 		}
 		if (defined $stats->{bytes_written})
 		{
-			$self->{cache}->{$source_oid . '.0.0.1.' . $snmp_index}->{value} = $stats->{bytes_written};
+			$self->{cache}->{$data_source_oid . '.0.0.1.' . $snmp_index}->{value} = $stats->{bytes_written};
 		}
 		if (defined $stats->{curr_connections})
 		{
-			$self->{cache}->{$source_oid . '.0.1.0.' . $snmp_index}->{value} = $stats->{curr_connections};
+			$self->{cache}->{$data_source_oid . '.0.1.0.' . $snmp_index}->{value} = $stats->{curr_connections};
 		}
 		if (defined $stats->{connection_structures})
 		{
-			$self->{cache}->{$source_oid . '.0.1.1.' . $snmp_index}->{value} = $stats->{connection_structures};
+			$self->{cache}->{$data_source_oid . '.0.1.1.' . $snmp_index}->{value} = $stats->{connection_structures};
 		}
 		if (defined $stats->{get_hits})
 		{
-			$self->{cache}->{$source_oid . '.1.0.0.' . $snmp_index}->{value} = $stats->{get_hits};
+			$self->{cache}->{$data_source_oid . '.1.0.0.' . $snmp_index}->{value} = $stats->{get_hits};
 		}
 		if (defined $stats->{get_misses})
 		{
-			$self->{cache}->{$source_oid . '.1.0.1.' . $snmp_index}->{value} = $stats->{get_misses};
+			$self->{cache}->{$data_source_oid . '.1.0.1.' . $snmp_index}->{value} = $stats->{get_misses};
 		}
 		if (defined $stats->{cmd_set})
 		{
-			$self->{cache}->{$source_oid . '.1.1.' . $snmp_index}->{value}   = $stats->{cmd_set};
+			$self->{cache}->{$data_source_oid . '.1.1.' . $snmp_index}->{value}   = $stats->{cmd_set};
 		}
 		if (defined $stats->{curr_items})
 		{
-			$self->{cache}->{$source_oid . '.2.0.0.' . $snmp_index}->{value} = $stats->{curr_items};
+			$self->{cache}->{$data_source_oid . '.2.0.0.' . $snmp_index}->{value} = $stats->{curr_items};
 		}
 		if (defined $stats->{evictions})
 		{
-			$self->{cache}->{$source_oid . '.2.0.1.' . $snmp_index}->{value} = $stats->{evictions};
+			$self->{cache}->{$data_source_oid . '.2.0.1.' . $snmp_index}->{value} = $stats->{evictions};
 		}
 		if (defined $stats->{bytes})
 		{
-			$self->{cache}->{$source_oid . '.2.2.0.' . $snmp_index}->{value} = $stats->{bytes};
+			$self->{cache}->{$data_source_oid . '.2.2.0.' . $snmp_index}->{value} = $stats->{bytes};
 		}
 		if (defined $stats->{limit_maxbytes})
 		{
-			$self->{cache}->{$source_oid . '.2.2.1.' . $snmp_index}->{value} = $stats->{limit_maxbytes};
+			$self->{cache}->{$data_source_oid . '.2.2.1.' . $snmp_index}->{value} = $stats->{limit_maxbytes};
 		}
 	}
 }
