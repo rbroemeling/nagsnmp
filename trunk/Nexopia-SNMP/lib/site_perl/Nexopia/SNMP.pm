@@ -33,8 +33,8 @@ sub new($)
 		# The SNMP module name that should represent this module.
 		module_name => 'Nexopia_SNMP',
 
-		# A hash of OIDs, pointing to the 'next' OID.  Needed to answer a GETNEXT request.
-		next_oid => {},
+		# An array of OIDs sorted from lowest to highest.  Needed to answer a GETNEXT request.
+		sorted_oid => [],
 
 		# The OID prefix that this module is responsible for.
 		#  .iso.org.dod.internet.private.enterprises.6396742
@@ -111,24 +111,18 @@ sub get_environment_setting($$)
 sub initialize_snmpwalk($)
 {
 	my ($self) = @_;
-	my @sorted_oid = ();
 
 	$self->update_cache();
 	foreach (sort {$a <=> $b} map { $_ = new NetSNMP::OID($_) } keys %{$self->{cache}})
 	{
-		push(@sorted_oid, $_);
+		push(@{$self->{sorted_oid}}, $_);
 	}
-	$self->{logger}->debug('initialize_snmpwalk determined sorted OID list [ ' . join(', ', @sorted_oid) . ' ]');
-	if ($#sorted_oid > -1)
+	$self->{logger}->debug('initialize_snmpwalk determined sorted OID list [ ' . join(', ', @{$self->{sorted_oid}}) . ' ]');
+	if ($#{$self->{sorted_oid}} > -1)
 	{
-		for (my $i = 0; $i < $#sorted_oid; $i++)
-		{
-			$self->{logger}->debug('initialize_snmpwalk determined next OID after ' . $sorted_oid[$i] . ' is ' . $sorted_oid[$i + 1]);
-			$self->{next_oid}->{$sorted_oid[$i]} = $sorted_oid[$i + 1];
-		}
-		$self->{lowest_oid} = $sorted_oid[0];
+		$self->{lowest_oid} = $self->{sorted_oid}->[0];
 		$self->{logger}->debug('initialize_snmpwalk determined lowest OID to be ' . $self->{lowest_oid});
-		$self->{highest_oid} = $sorted_oid[$#sorted_oid];
+		$self->{highest_oid} = $self->{sorted_oid}->[$#{$self->{sorted_oid}}];
 		$self->{logger}->debug('initialize_snmpwalk determined highest OID to be ' . $self->{highest_oid});
 	}
 }
@@ -160,10 +154,22 @@ sub request_handler($$$$$)
 				$self->{logger}->debug($requested_oid . ' < ' . $self->{lowest_oid} . ', returning ' . $self->{lowest_oid});
 				$self->assign_result($request, $self->{lowest_oid});
 			}
-			elsif (defined $self->{next_oid}->{$requested_oid})
+			elsif ($requested_oid < $self->{highest_oid})
 			{
-				# We know what OID comes next after the requested OID, so return it.
-				$self->assign_result($request, $self->{next_oid}->{$requested_oid});
+				# The requested OID is lower than our highest OID, so return the next OID after it.
+				for (my $i = 0; $i <= $#{$self->{sorted_oid}}; $i++)
+				{
+					if ($self->{sorted_oid}->[$i] > $requested_oid)
+					{
+						$self->assign_result($request, $self->{sorted_oid}->[$i]);
+						last;
+					}
+				}
+			}
+			else
+			{
+				# The OID is >= our highest OID, and we have no idea what the next OID after it is.
+				# Therefore we don't return anything specific.
 			}
 		}
 	}
