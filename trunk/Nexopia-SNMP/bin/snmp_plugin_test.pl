@@ -5,7 +5,7 @@ use Log::Log4perl;
 use strict;
 
 Log::Log4perl::init_once('/etc/log4perl.conf');
-my $logger = Log::Log4perl->get_logger('script');
+my $logger = Log::Log4perl->get_logger('interactive_script');
 
 if (! scalar(@ARGV))
 {
