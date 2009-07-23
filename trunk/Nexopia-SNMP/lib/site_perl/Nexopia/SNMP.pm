@@ -6,9 +6,9 @@ use Log::Log4perl;
 use NetSNMP::OID;
 
 
-sub new($)
+sub new($;$)
 {
-	my $class = shift;
+	my ($class, $arg_ref) = @_;
 
 	my $self =
 	{
@@ -24,9 +24,6 @@ sub new($)
 		# The highest OID that this module handles.
 		highest_oid => undef,
 
-		# Get our logger-singleton and setup it's environment for this class.
-		logger => Log::Log4perl->get_logger(__PACKAGE__),
-
 		# The lowest OID that this module handles.
 		lowest_oid => undef,
 
@@ -41,6 +38,12 @@ sub new($)
 		#  .iso.org.dod.internet.private.enterprises.NEXOPIA
 		source_oid => '.1.3.6.1.4.1.6396742'
 	};
+
+	# Update our logger-singleton with a new environment for this class unless we have been
+	# instructed to use a specific logger.
+	Log::Log4perl::init_once('/etc/log4perl.conf');
+	$self->{logger} = defined($arg_ref->{logger}) ? $arg_ref->{logger} : Log::Log4perl->get_logger(__PACKAGE__);
+
 	bless $self, $class;
 	return $self;
 }
@@ -95,19 +98,6 @@ sub dump($$)
 }
 
 
-sub get_environment_setting($$)
-{
-	my ($self, $setting_name) = @_;
-
-	$setting_name = $self->{module_name} . '_' . $setting_name;
-	if (defined $ENV{$setting_name})
-	{
-		return $ENV{$setting_name};
-	}
-	return undef;
-}
-
-
 sub initialize_snmpwalk($)
 {
 	my ($self) = @_;
@@ -124,6 +114,24 @@ sub initialize_snmpwalk($)
 		$self->{logger}->debug('initialize_snmpwalk determined lowest OID to be ' . $self->{lowest_oid});
 		$self->{highest_oid} = $self->{sorted_oid}->[$#{$self->{sorted_oid}}];
 		$self->{logger}->debug('initialize_snmpwalk determined highest OID to be ' . $self->{highest_oid});
+	}
+}
+
+
+sub register_snmpd($$)
+{
+	my ($self, $snmpd) = @_;
+
+	if ($snmpd)
+	{
+		if (! $snmpd->register($self->{module_name}, $self->{source_oid}, sub { return $self->request_handler(@_); }))
+		{
+			$self->{logger}->error('register_snmpd failed: registration with existing agent failed');
+		}
+	}
+	else
+	{
+		$self->{logger}->warning('register_snmpd failed: no existing agent could be found');
 	}
 }
 

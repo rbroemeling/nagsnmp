@@ -10,37 +10,25 @@ use vars qw(@ISA);
 @ISA = qw(Nexopia::SNMP);
 
 
-sub new($)
+sub new($;$)
 {
-	my $class = $_[0];
+	my ($class, $arg_ref) = @_;
 
 	my $self = Nexopia::SNMP->new(@_);
 	bless $self, $class;
 
-	# Update our logger-singleton with a new environment for this class.
-	$self->{logger} = Log::Log4perl->get_logger(__PACKAGE__);
+	# Update our logger-singleton with a new environment for this class unless we have been
+	# instructed to use a specific logger.
+	$self->{logger} = defined($arg_ref->{logger}) ? $arg_ref->{logger} : Log::Log4perl->get_logger(__PACKAGE__);
 
 	# Append the appropriate suffix to our SNMP module name.
 	$self->{module_name} .= '_Memcached';
 
 	# Memcached hostname to monitor.
-	$self->{memcached_hostname} = $self->get_environment_setting('memcached_hostname');
-	if (! defined $self->{memcached_hostname})
-	{
-		$self->{memcached_hostname} = '127.0.0.1';
-	}
+	$self->{memcached_hostname} = defined($arg_ref->{memcached_hostname}) ? $arg_ref->{memcached_hostname} : '127.0.0.1';
 
-	# Memcached port(s) to monitor.
-	$self->{memcached_ports} = $self->get_environment_setting('memcached_ports');
-	if (! defined $self->{memcached_ports})
-	{
-		$self->{memcached_ports} = [ 11212, 11213, 11222, 11223 ];
-	}
-	else
-	{
-		my @ports = split(/,/, $self->{memcached_ports});
-		$self->{memcached_ports} = \@ports;
-	}
+	# Memcached port(s) to monitor (array reference).
+	$self->{memcached_ports} = defined($arg_ref->{memcached_ports}) ? $arg_ref->{memcached_ports} : [ 11212, 11213, 11222, 11223 ];
 
 	# We handle the .63623 (.MEMCD) sub-tree of our parent OID.
 	$self->{source_oid} .= '.63623';

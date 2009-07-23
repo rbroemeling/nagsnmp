@@ -10,46 +10,31 @@ use vars qw(@ISA);
 @ISA = qw(Nexopia::SNMP);
 
 
-sub new($)
+sub new($;$)
 {
-	my $class = $_[0];
+	my ($class, $arg_ref) = @_;
 
 	my $self = Nexopia::SNMP->new(@_);
 	bless $self, $class;
 
-	# Update our logger-singleton with a new environment for this class.
-	$self->{logger} = Log::Log4perl->get_logger(__PACKAGE__);
+	# Update our logger-singleton with a new environment for this class unless we have been
+	# instructed to use a specific logger.
+	$self->{logger} = defined($arg_ref->{logger}) ? $arg_ref->{logger} : Log::Log4perl->get_logger(__PACKAGE__);
 
 	# Append the appropriate suffix to our SNMP module name.
 	$self->{module_name} .= '_MySQL';
 
 	# MySQL hostname to monitor.
-	$self->{mysql_hostname} = $self->get_environment_setting('mysql_hostname');
-	if (! defined $self->{mysql_hostname})
-	{
-		$self->{mysql_hostname} = '127.0.0.1';
-	}
+	$self->{mysql_hostname} = defined($arg_ref->{mysql_hostname}) ? $arg_ref->{mysql_hostname} : '127.0.0.1';
 
 	# MySQL user password used to monitor.
-	$self->{mysql_password} = $self->get_environment_setting('mysql_password');
-	if (! defined $self->{mysql_password})
-	{
-		$self->{mysql_password} = '';
-	}
+	$self->{mysql_password} = defined($arg_ref->{mysql_password}) ? $arg_ref->{mysql_password} : '';
 
 	# MySQL port used to monitor.
-	$self->{mysql_port} = $self->get_environment_setting('mysql_port');
-	if (! defined $self->{mysql_port})
-	{
-		$self->{mysql_port} = 3306;
-	}
+	$self->{mysql_port} = defined($arg_ref->{mysql_port}) ? $arg_ref->{mysql_port} : 3306;
 
 	# MySQL user used to monitor.
-	$self->{mysql_username} = $self->get_environment_setting('mysql_username');
-	if (! defined $self->{mysql_username})
-	{
-		$self->{mysql_username} = 'monitor';
-	}
+	$self->{mysql_username} = defined($arg_ref->{mysql_username}) ? $arg_ref->{mysql_username} : 'monitor';
 
 	# We handle the .69775 (.MYSQL) sub-tree of our parent OID.
 	$self->{source_oid} .= '.69775';
