@@ -34,7 +34,11 @@ if (! scalar(@ARGV))
 
 foreach my $snmp_plugin (@ARGV)
 {
-	my ($snmp_plugin, $snmp_plugin_arguments) = $snmp_plugin =~ /^(.*){(.*?)}$/;
+	my $snmp_plugin_arguments = undef;
+	if ($snmp_plugin =~ /{.*}/)
+	{
+		($snmp_plugin, $snmp_plugin_arguments) = $snmp_plugin =~ /^(.*){(.*)}$/;
+	}
 	$snmp_plugin = 'Nexopia::SNMP::' . $snmp_plugin;
 	my $snmp = undef;
 	if ($snmp_plugin_arguments)
