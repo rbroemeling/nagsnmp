@@ -61,7 +61,7 @@ sub assign_result($$$)
 	}
 	if (! defined $self->{cache}->{$requested_oid}->{value})
 	{
-		$self->{logger}->info('assign_result does not have a value to report for requested OID ' . $requested_oid);
+		$self->{logger}->warn('assign_result does not have a value to report for requested OID ' . $requested_oid);
 		return;
 	}
 	$self->{logger}->debug('assign_result OID ' . $requested_oid . " is assigned the value '" . $self->{cache}->{$requested_oid}->{value} . "' (type " . $self->{cache}->{$requested_oid}->{type} . ")");
@@ -131,7 +131,7 @@ sub register_snmpd($$)
 	}
 	else
 	{
-		$self->{logger}->warning('register_snmpd failed: no existing agent could be found');
+		$self->{logger}->warn('register_snmpd failed: no existing agent could be found');
 	}
 }
 
