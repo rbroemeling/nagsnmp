@@ -17,10 +17,6 @@ sub new($;$)
 	my $self = Nexopia::SNMP->new(@_);
 	bless $self, $class;
 
-	# Update our logger-singleton with a new environment for this class unless we have been
-	# instructed to use a specific logger.
-	$self->{logger} = defined($arg_ref->{logger}) ? $arg_ref->{logger} : Log::Log4perl->get_logger(__PACKAGE__);
-
 	# Append the appropriate suffix to our SNMP module name.
 	$self->{module_name} .= '_Memcached';
 

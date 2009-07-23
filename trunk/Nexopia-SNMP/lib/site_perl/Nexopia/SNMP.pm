@@ -42,7 +42,7 @@ sub new($;$)
 	# Update our logger-singleton with a new environment for this class unless we have been
 	# instructed to use a specific logger.
 	Log::Log4perl::init_once('/etc/log4perl.conf');
-	$self->{logger} = defined($arg_ref->{logger}) ? $arg_ref->{logger} : Log::Log4perl->get_logger(__PACKAGE__);
+	$self->{logger} = defined($arg_ref->{logger}) ? $arg_ref->{logger} : Log::Log4perl->get_logger('daemon');
 
 	bless $self, $class;
 	return $self;
