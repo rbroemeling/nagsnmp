@@ -34,17 +34,25 @@ if (! scalar(@ARGV))
 
 foreach my $snmp_plugin (@ARGV)
 {
+	my ($snmp_plugin, $snmp_plugin_arguments) = $snmp_plugin =~ /^(.*){(.*?)}$/;
 	$snmp_plugin = 'Nexopia::SNMP::' . $snmp_plugin;
 	my $snmp = undef;
-	eval "require $snmp_plugin; \$snmp = $snmp_plugin->new( { logger => \$logger } );";
+	if ($snmp_plugin_arguments)
+	{
+		eval "require $snmp_plugin; \$snmp = $snmp_plugin->new( { logger => \$logger, $snmp_plugin_arguments } );";
+	}
+	else
+	{
+		eval "require $snmp_plugin; \$snmp = $snmp_plugin->new( { logger => \$logger } );";
+	}
 	if (defined $snmp)
 	{
 		$logger->info('Loading of ' . $snmp_plugin . ' succeeded');
 		$snmp->dump(\*STDOUT);
+		$logger->info('Test of ' . $snmp_plugin . ' completed');
 	}
 	else
 	{
 		$logger->error('Loading of ' . $snmp_plugin . ' failed');
 	}
-
 }
