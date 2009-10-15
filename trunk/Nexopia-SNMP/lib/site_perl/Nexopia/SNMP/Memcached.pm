@@ -42,7 +42,7 @@ sub telnet_read_variables($$)
 	my $line = $telnet->getline();
 	while ((defined $line) && ($line =~ /^STAT /))
 	{
-		$line =~ s/\s+$//;
+		$line =~ s/(^\s+|\s+$)//g;
 		my ($stat_prefix, $variable_name, $value) = grep(!/^\s*$/, split(/ /, $line));
 		$variables{$variable_name} = $value;
 		$line = $telnet->getline();
