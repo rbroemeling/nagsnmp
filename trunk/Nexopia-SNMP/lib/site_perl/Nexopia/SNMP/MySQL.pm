@@ -45,6 +45,8 @@ sub update_cache($)
 	my ($self) = @_;
 
 	$self->{cache_timestamp} = time();
+	$self->{cache} = {};
+
 	$self->{cache}->{$self->{source_oid} . '.0.0'} = { type => NetSNMP::ASN::ASN_GAUGE, value => undef };
 	$self->{cache}->{$self->{source_oid} . '.0.1'} = { type => NetSNMP::ASN::ASN_GAUGE, value => undef };
 	$self->{cache}->{$self->{source_oid} . '.0.2'} = { type => NetSNMP::ASN::ASN_GAUGE, value => undef };

@@ -56,6 +56,7 @@ sub update_cache($)
 	my ($self) = @_;
 
 	$self->{cache_timestamp} = time();
+	$self->{cache} = {};
 
 	$self->{cache}->{$self->{source_oid} . '.0'} = { type => NetSNMP::ASN::ASN_INTEGER, value => scalar @{$self->{memcached_ports}} };
 	for (my $i = 0; $i <= $#{$self->{memcached_ports}}; $i++)

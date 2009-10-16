@@ -114,6 +114,7 @@ sub update_cache($)
 	my ($self) = @_;
 	
 	$self->{cache_timestamp} = time();
+	$self->{cache} = {};
 	
 	# .0 is a count of the number of indexed children we have.
 	$self->{cache}->{$self->{source_oid} . '.0'} = { type => NetSNMP::ASN::ASN_INTEGER, value => scalar @{$self->{children}} };
