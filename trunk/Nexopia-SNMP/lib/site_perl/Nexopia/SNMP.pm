@@ -87,8 +87,9 @@ sub dump($$)
 
 	my $count = 0;
 	print $fh $self->{module_name} . " OID Cache\n";
-	foreach my $oid (keys %{$self->{cache}})
+	for (my $i = 0; $i <= $#{$self->{sorted_oid}}; $i++)
 	{
+		my $oid = '.' . join('.', $self->{sorted_oid}->[$i]->to_array());
 		my $type = $self->{cache}->{$oid}->{type};
 		my $value = $self->{cache}->{$oid}->{value};
 
