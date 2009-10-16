@@ -30,6 +30,10 @@ sub new($;$)
 		# The SNMP module name that should represent this module.
 		module_name => 'Nexopia_SNMP',
 
+		# A reference to the snmp daemon that we are running within.  Only
+		# set if we have registered.
+		snmpd => undef,
+
 		# An array of OIDs sorted from lowest to highest.  Needed to answer a GETNEXT request.
 		sorted_oid => [],
 
@@ -129,11 +133,21 @@ sub register_snmpd($$)
 {
 	my ($self, $snmpd) = @_;
 
+	if (defined $self->{snmpd})
+	{
+		# We are already registered, thus there is nothing to do.
+		$self->{logger}->debug('register_snmpd silently ignored: already registered');
+		return;
+	}
 	if ($snmpd)
 	{
 		if (! $snmpd->register($self->{module_name}, $self->{source_oid}, sub { return $self->request_handler(@_); }))
 		{
 			$self->{logger}->error('register_snmpd failed: registration with existing agent failed');
+		}
+		else
+		{
+			$self->{snmpd} = $snmpd;
 		}
 	}
 	else
