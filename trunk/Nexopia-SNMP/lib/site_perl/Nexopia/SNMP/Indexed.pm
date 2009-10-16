@@ -72,9 +72,9 @@ sub new($$;$)
 }
 
 
-sub register($$)
+sub register($$$)
 {
-	my ($child, $child_name) = @_;
+	my ($class, $child, $child_name) = @_;
 
 	if (! $Nexopia::SNMP::Indexed::children)
 	{
@@ -94,9 +94,9 @@ sub register($$)
 }
 
 
-sub register_snmpd($)
+sub register_snmpd($$)
 {
-	my ($snmpd) = @_;
+	my ($class, $snmpd) = @_;
 
 	if (! $Nexopia::SNMP::Indexed::children)
 	{
