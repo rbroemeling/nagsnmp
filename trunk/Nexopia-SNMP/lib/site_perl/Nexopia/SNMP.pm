@@ -1,6 +1,8 @@
 # $Id$
 
+
 package Nexopia::SNMP;
+
 
 use Log::Log4perl;
 use NetSNMP::OID;
@@ -56,7 +58,6 @@ sub new($;$)
 	}
 
 	bless $self, $class;
-	return $self;
 }
 
 
@@ -78,6 +79,19 @@ sub assign_result($$$)
 	$self->{logger}->debug('assign_result OID ' . $requested_oid . " is assigned the value '" . $self->{cache}->{$requested_oid}->{value} . "' (type " . $self->{cache}->{$requested_oid}->{type} . ")");
 	$request->setOID($requested_oid);
 	$request->setValue($self->{cache}->{$requested_oid}->{type}, $self->{cache}->{$requested_oid}->{value});
+}
+
+
+sub cache_expired($)
+{
+	my ($self) = @_;
+	
+	if ((time() - $self->{cache_timestamp}) > $self->{cache_time})
+	{
+		$self->{logger}->debug('Data cache with timestamp ' . $self->{cache_timestamp} . ' has expired');
+		return 1;
+	}
+	return 0;
 }
 
 
@@ -114,7 +128,10 @@ sub initialize_snmpwalk($)
 {
 	my ($self) = @_;
 
-	$self->update_cache();
+	if ($self->cache_expired())
+	{
+		$self->update_cache();
+	}
 	$self->{sorted_oid} = [];
 	foreach (sort {$a <=> $b} map { $_ = new NetSNMP::OID($_) } keys %{$self->{cache}})
 	{
@@ -163,9 +180,8 @@ sub request_handler($$$$$)
 {
 	my ($self, $handler, $registration_info, $request_info, $requests) = @_;
 
-	if ((time() - $self->{cache_timestamp}) > $self->{cache_time})
+	if ($self->cache_expired())
 	{
-		$self->{logger}->debug('Cache timestamp ' . $self->{cache_timestamp} . ' has expired, updating cache');
 		$self->update_cache();
 	}
 	for ($request = $requests; $request; $request = $request->next())

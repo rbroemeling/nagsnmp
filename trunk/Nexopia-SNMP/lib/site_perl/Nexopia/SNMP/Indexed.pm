@@ -43,12 +43,17 @@ sub add_child($$$)
 }
 
 
-sub new($$;$)
+sub new($$$;$)
 {
 	my ($class, $first_child, $first_child_name, $arg_ref) = @_;
 
-	my $self = Nexopia::SNMP->new($class, $arg_ref);
-	
+	my $self = Nexopia::SNMP->new($arg_ref);
+
+	# Severely limit caching of data at this "virtualized" layer, leave the
+	# actual/real data caching to our children, who have to make costly
+	# network connections to refresh their data.
+	$self->{cache_time} = 5;
+
 	# Initialize a new (empty) list of children.
 	$self->{children} = [];
 
@@ -132,7 +137,10 @@ sub update_cache($)
 		$self->{cache}->{$self->{source_oid} . '.2.' . $snmp_index} = { type => NetSNMP::ASN::ASN_OCTET_STR, value => $child_name };
 
 		# .3.<intermediaries>.x is the value of the x'th indexed child for <intermediaries>.
-		$child->update_cache();
+		if ($child->cache_expired())
+		{
+			$child->update_cache();
+		}
 		foreach my $oid (keys %{$child->{cache}})
 		{
 			$self->{cache}->{$oid . '.' . $snmp_index} = $child->{cache}->{$oid};

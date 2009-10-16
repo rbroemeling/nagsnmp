@@ -14,8 +14,7 @@ sub new($;$)
 {
 	my ($class, $arg_ref) = @_;
 
-	my $self = Nexopia::SNMP->new(@_);
-	bless $self, $class;
+	my $self = Nexopia::SNMP->new($arg_ref);
 
 	# Append the appropriate suffix to our SNMP module name.
 	$self->{module_name} .= '_MySQL';
@@ -35,7 +34,10 @@ sub new($;$)
 	# We handle the .69775 (.MYSQL) sub-tree of our parent OID.
 	$self->{source_oid} .= '.69775';
 
+	bless $self, $class;
+
 	$self->initialize_snmpwalk();
+
 	return $self;
 }
 
