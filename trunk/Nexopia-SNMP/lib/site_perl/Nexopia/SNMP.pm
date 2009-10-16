@@ -1,8 +1,6 @@
 # $Id$
 
-
 package Nexopia::SNMP;
-
 
 use Log::Log4perl;
 use NetSNMP::OID;
