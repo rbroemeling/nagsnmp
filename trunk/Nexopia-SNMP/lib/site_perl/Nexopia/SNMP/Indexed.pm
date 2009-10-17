@@ -101,15 +101,24 @@ sub register($$$)
 
 sub register_snmpd($$)
 {
-	my ($class, $snmpd) = @_;
+	my ($class_or_ref, $snmpd) = @_;
 
-	if (! $Nexopia::SNMP::Indexed::children)
+	if (ref($class_or_ref))
 	{
-		$Nexopia::SNMP::Indexed::children = {};
+		# We are being called as an instance method.
+		return $class_or_ref->SUPER::register_snmpd($snmpd);
 	}
-	foreach my $oid_root (keys %{$Nexopia::SNMP::Indexed::children})
+	else
 	{
-		$Nexopia::SNMP::Indexed::children->{$oid_root}->register_snmpd($snmpd);
+		# We are being called as a class method.
+		if (! $Nexopia::SNMP::Indexed::children)
+		{
+			$Nexopia::SNMP::Indexed::children = {};
+		}
+		foreach my $oid_root (keys %{$Nexopia::SNMP::Indexed::children})
+		{
+			$Nexopia::SNMP::Indexed::children->{$oid_root}->register_snmpd($snmpd);
+		}
 	}
 }
 
