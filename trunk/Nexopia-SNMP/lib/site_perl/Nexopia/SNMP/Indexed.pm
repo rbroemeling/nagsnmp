@@ -21,12 +21,14 @@ sub add_child($$$)
 	if (! $self->{module_name})
 	{
 		$self->{module_name} = $child->{module_name};
+		$self->{logger}->debug('Reverse-inherited the name ' . $self->{module_name} . ' from my child.');
 	}
 	
 	# Reverse-inherit our child's source OID if we don't have one.
 	if (! $self->{source_oid})
 	{
 		$self->{source_oid} = $child->{source_oid};
+		$self->{logger}->debug('Reverse-inherited the root OID ' . $self->{source_oid} . ' from my child.');
 	}
 	
 	# Modify the child's OID root so that it is within the indexed
@@ -41,7 +43,8 @@ sub add_child($$$)
 	# Add the new child to our list of children.
 	push(@{$self->{children}}, $child);
 	push(@{$self->{children_names}}, $child_name);
-
+	$self->{logger}->debug('Added the child ' . $child . ', labelled "' . $child_name . '".');
+	
 	# Update our snmpwalk settings, now that we have more children than we
 	# did before (as our list of available OIDs will have changed).
 	$self->initialize_snmpwalk();
