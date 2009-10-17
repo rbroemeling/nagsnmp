@@ -126,10 +126,7 @@ sub initialize_snmpwalk($)
 {
 	my ($self) = @_;
 
-	if ($self->cache_expired())
-	{
-		$self->update_cache();
-	}
+	$self->update_cache();
 	$self->{sorted_oid} = [];
 	foreach (sort {$a <=> $b} map { $_ = new NetSNMP::OID($_) } keys %{$self->{cache}})
 	{
