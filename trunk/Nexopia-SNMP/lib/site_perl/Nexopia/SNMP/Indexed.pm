@@ -35,10 +35,9 @@ sub add_child($$$)
 	# root data section (.3).
 	$child->{source_oid} .= '.3';
 
-	# We have changed the child's OID root, so we need to refresh it's
-	# cache so that all of the old data is moved into the correct position
-	# in the OID hierarchy.
-	$child->update_cache();
+	# We have changed the child's OID root, so we need to expire it's
+	# cache so that data in the old OID hierarchy is not used.
+	$child->{cache_timestamp} = 0;
 
 	# Add the new child to our list of children.
 	push(@{$self->{children}}, $child);
