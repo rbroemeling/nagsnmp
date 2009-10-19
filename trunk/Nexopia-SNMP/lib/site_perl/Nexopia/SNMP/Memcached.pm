@@ -60,7 +60,7 @@ sub update_cache($)
 	$self->{cache_timestamp} = time();
 	$self->{cache} = {};
 
-	my $stats = ();
+	my $stats = {};
 	my $telnet = new Net::Telnet(Host => $self->{memcached_hostname}, Port => $self->{memcached_port}, Timeout => 1, Errmode => 'return');
 	if (defined $telnet && $telnet->open() && $telnet->print('stats'))
 	{
