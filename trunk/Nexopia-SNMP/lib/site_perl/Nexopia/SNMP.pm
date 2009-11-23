@@ -16,7 +16,7 @@ sub new($;$)
 		cache => {},
 
 		# How long to cache our results for.
-		cache_time => 15,
+		cache_time => 19,
 
 		# Keeps track of the last time that our results cache was updated.
 		cache_timestamp => 0,
