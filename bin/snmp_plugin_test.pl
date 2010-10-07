@@ -1,5 +1,4 @@
 #!/usr/bin/perl -w
-# $Id$
 #
 # The MIT License (http://www.opensource.org/licenses/mit-license.php)
 # 

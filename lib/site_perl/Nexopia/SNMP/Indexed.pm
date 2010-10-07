@@ -1,4 +1,3 @@
-# $Id: Memcached.pm 16861 2009-10-15 20:10:08Z remi $
 #
 # The MIT License (http://www.opensource.org/licenses/mit-license.php)
 # 
