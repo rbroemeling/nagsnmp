@@ -22,21 +22,21 @@
 # THE SOFTWARE.
 #
 
-package Nexopia::SNMP::MySQL;
+package NagSNMP::SNMP::MySQL;
 
 use DBI;
 use Log::Log4perl;
 use NetSNMP::ASN;
-use Nexopia::SNMP;
+use NagSNMP::SNMP;
 use vars qw(@ISA);
-@ISA = qw(Nexopia::SNMP);
+@ISA = qw(NagSNMP::SNMP);
 
 
 sub new($;$)
 {
 	my ($class, $arg_ref) = @_;
 
-	my $self = Nexopia::SNMP->new($arg_ref);
+	my $self = NagSNMP::SNMP->new($arg_ref);
 
 	# Append the appropriate suffix to our SNMP module name.
 	$self->{module_name} .= '_MySQL';

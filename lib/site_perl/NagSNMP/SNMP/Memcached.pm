@@ -22,21 +22,21 @@
 # THE SOFTWARE.
 #
 
-package Nexopia::SNMP::Memcached;
+package NagSNMP::SNMP::Memcached;
 
 use Log::Log4perl;
 use Net::Telnet;
 use NetSNMP::ASN;
-use Nexopia::SNMP;
+use NagSNMP::SNMP;
 use vars qw(@ISA);
-@ISA = qw(Nexopia::SNMP);
+@ISA = qw(NagSNMP::SNMP);
 
 
 sub new($;$)
 {
 	my ($class, $arg_ref) = @_;
 
-	my $self = Nexopia::SNMP->new($arg_ref);
+	my $self = NagSNMP::SNMP->new($arg_ref);
 
 	# Append the appropriate suffix to our SNMP module name.
 	$self->{module_name} .= '_Memcached';

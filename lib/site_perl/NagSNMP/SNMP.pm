@@ -22,7 +22,7 @@
 # THE SOFTWARE.
 #
 
-package Nexopia::SNMP;
+package NagSNMP::SNMP;
 
 use Log::Log4perl;
 use NetSNMP::OID;
@@ -50,7 +50,7 @@ sub new($;$)
 		lowest_oid => undef,
 
 		# The SNMP module name that should represent this module.
-		module_name => 'Nexopia_SNMP',
+		module_name => 'NagSNMP',
 
 		# A reference to the snmp daemon that we are running within.  Only
 		# set if we have registered.

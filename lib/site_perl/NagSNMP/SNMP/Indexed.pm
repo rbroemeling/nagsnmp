@@ -22,13 +22,13 @@
 # THE SOFTWARE.
 #
 
-package Nexopia::SNMP::Indexed;
+package NagSNMP::SNMP::Indexed;
 
 use Log::Log4perl;
 use NetSNMP::ASN;
-use Nexopia::SNMP;
+use NagSNMP::SNMP;
 use vars qw(@ISA);
-@ISA = qw(Nexopia::SNMP);
+@ISA = qw(NagSNMP::SNMP);
 
 
 sub add_child($$$)
@@ -36,7 +36,7 @@ sub add_child($$$)
 	my ($self, $child, $child_name) = @_;
 	
 	# Modify child's module name so that it is obvious that it is
-	# a child of a Nexopia::SNMP::Indexed object.
+	# a child of a NagSNMP::SNMP::Indexed object.
 	$child->{module_name} .= '_Indexed';
 
 	# Reverse-inherit our child's module name if we don't have one.
@@ -76,7 +76,7 @@ sub new($$$;$)
 {
 	my ($class, $first_child, $first_child_name, $arg_ref) = @_;
 
-	my $self = Nexopia::SNMP->new($arg_ref);
+	my $self = NagSNMP::SNMP->new($arg_ref);
 
 	# Severely limit caching of data at this "virtualized" layer, leave the
 	# actual/real data caching to our children, who have to make costly
@@ -110,20 +110,20 @@ sub register($$$)
 {
 	my ($class, $child, $child_name) = @_;
 
-	if (! $Nexopia::SNMP::Indexed::children)
+	if (! $NagSNMP::SNMP::Indexed::children)
 	{
-		$Nexopia::SNMP::Indexed::children = {};
+		$NagSNMP::SNMP::Indexed::children = {};
 	}
-	if (! $Nexopia::SNMP::Indexed::children->{$child->{source_oid}})
+	if (! $NagSNMP::SNMP::Indexed::children->{$child->{source_oid}})
 	{
 		# We do not have an indexed child registered for this OID
 		# tree, so create one.
-		my $indexed_root = Nexopia::SNMP::Indexed->new($child, $child_name);
-		$Nexopia::SNMP::Indexed::children->{$indexed_root->{source_oid}} = $indexed_root;
+		my $indexed_root = NagSNMP::SNMP::Indexed->new($child, $child_name);
+		$NagSNMP::SNMP::Indexed::children->{$indexed_root->{source_oid}} = $indexed_root;
 	}
 	else
 	{
-		$Nexopia::SNMP::Indexed::children->{$child->{source_oid}}->add_child($child, $child_name);
+		$NagSNMP::SNMP::Indexed::children->{$child->{source_oid}}->add_child($child, $child_name);
 	}
 }
 
@@ -140,13 +140,13 @@ sub register_snmpd($$)
 	else
 	{
 		# We are being called as a class method.
-		if (! $Nexopia::SNMP::Indexed::children)
+		if (! $NagSNMP::SNMP::Indexed::children)
 		{
-			$Nexopia::SNMP::Indexed::children = {};
+			$NagSNMP::SNMP::Indexed::children = {};
 		}
-		foreach my $oid_root (keys %{$Nexopia::SNMP::Indexed::children})
+		foreach my $oid_root (keys %{$NagSNMP::SNMP::Indexed::children})
 		{
-			$Nexopia::SNMP::Indexed::children->{$oid_root}->register_snmpd($snmpd);
+			$NagSNMP::SNMP::Indexed::children->{$oid_root}->register_snmpd($snmpd);
 		}
 	}
 }

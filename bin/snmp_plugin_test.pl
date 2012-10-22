@@ -34,7 +34,7 @@ if (! scalar(@ARGV))
 	print "List of SNMP Plugins Available for Testing:\n";
 	foreach my $include_directory (@INC)
 	{
-		my $snmp_plugin_path = $include_directory . '/Nexopia/SNMP';
+		my $snmp_plugin_path = $include_directory . '/NagSNMP/SNMP';
 		next if (! -e $snmp_plugin_path);
 		if (opendir(DIR, $snmp_plugin_path))
 		{
@@ -61,7 +61,7 @@ foreach my $snmp_plugin (@ARGV)
 	{
 		($snmp_plugin, $snmp_plugin_arguments) = $snmp_plugin =~ /^(.*){(.*)}$/;
 	}
-	$snmp_plugin = 'Nexopia::SNMP::' . $snmp_plugin;
+	$snmp_plugin = 'NagSNMP::SNMP::' . $snmp_plugin;
 	my $snmp = undef;
 	if ($snmp_plugin_arguments)
 	{
