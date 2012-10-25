@@ -2,6 +2,7 @@
 #
 # The MIT License (http://www.opensource.org/licenses/mit-license.php)
 # 
+# Copyright (c) 2012 Themis Solutions, Inc.
 # Copyright (c) 2010 Nexopia.com, Inc.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
