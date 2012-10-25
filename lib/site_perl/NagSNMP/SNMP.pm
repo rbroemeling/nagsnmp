@@ -73,7 +73,11 @@ sub new($;$)
 	}
 	else
 	{
-		Log::Log4perl::init_once('/etc/log4perl.conf');
+		if (-r '/etc/log4perl.conf') {
+			Log::Log4perl::init_once('/etc/log4perl.conf');
+		} else {
+			Log::Log4perl::init_once(\*DATA);
+		}
 		$self->{logger} = Log::Log4perl->get_logger('daemon');
 	}
 
@@ -241,3 +245,16 @@ sub request_handler($$$$$)
 
 
 1;
+
+__DATA__
+log4perl.oneMessagePerAppender                       = 1
+
+log4perl.logger.daemon                               = INFO, Syslog
+
+log4perl.appender.Syslog                             = Log::Dispatch::Syslog
+log4perl.appender.Syslog.facility                    = user
+log4perl.appender.Syslog.ident                       = sub { use File::Basename; return basename($0); }
+log4perl.appender.Syslog.layout                      = Log::Log4perl::Layout::PatternLayout
+log4perl.appender.Syslog.layout.ConversionPattern    = [%L/%p] %m%n
+log4perl.appender.Syslog.logopt                      = nofatal
+log4perl.appender.Syslog.Threshold                   = INFO
