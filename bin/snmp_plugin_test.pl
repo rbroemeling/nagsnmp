@@ -82,7 +82,7 @@ foreach my $snmp_plugin (@ARGV)
 	}
 	else
 	{
-		$logger->error('Loading of ' . $snmp_plugin . ' failed');
+		$logger->error('Loading of ' . $snmp_plugin . ' failed: ' . $@);
 	}
 }
 
