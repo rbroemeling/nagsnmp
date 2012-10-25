@@ -22,6 +22,11 @@
 # THE SOFTWARE.
 #
 
+#
+# Example Usage (in snmpd.conf):
+#   perl require NagSNMP::SNMP::Postfix; $nagsnmp_postfix = NagSNMP::SNMP::Postfix->new(); $nagsnmp_postfix->register_snmpd($agent);
+#
+
 package NagSNMP::SNMP::Postfix;
 
 use Log::Log4perl;

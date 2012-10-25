@@ -22,6 +22,11 @@
 # THE SOFTWARE.
 #
 
+#
+# Example Usage (in snmpd.conf):
+#   perl require NagSNMP::SNMP::MySQL; $nagsnmp_mysql = NagSNMP::SNMP::MySQL->new(); $nagsnmp_mysql->register_snmpd($agent);
+#
+
 package NagSNMP::SNMP::MySQL;
 
 use DBI;

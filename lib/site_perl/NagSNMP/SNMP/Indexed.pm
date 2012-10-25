@@ -22,6 +22,14 @@
 # THE SOFTWARE.
 #
 
+#
+# Example Usage (in snmpd.conf, example given is with NagSNMP::SNMP::Memcached):
+#  perl require NagSNMP::SNMP::Indexed; require NagSNMP::SNMP::Memcached; NagSNMP::SNMP::Indexed->register(NagSNMP::SNMP::Memcached->new({memcached_port => "11212"}), "Port 11212"); NagSNMP::SNMP::Indexed->register_snmpd($agent);
+#  perl require NagSNMP::SNMP::Indexed; require NagSNMP::SNMP::Memcached; NagSNMP::SNMP::Indexed->register(NagSNMP::SNMP::Memcached->new({memcached_port => "11222"}), "Port 11222"); NagSNMP::SNMP::Indexed->register_snmpd($agent);
+#  perl require NagSNMP::SNMP::Indexed; require NagSNMP::SNMP::Memcached; NagSNMP::SNMP::Indexed->register(NagSNMP::SNMP::Memcached->new({memcached_port => "11223"}), "Port 11223"); NagSNMP::SNMP::Indexed->register_snmpd($agent);
+#  perl require NagSNMP::SNMP::Indexed; require NagSNMP::SNMP::Memcached; NagSNMP::SNMP::Indexed->register(NagSNMP::SNMP::Memcached->new({memcached_port => "11213"}), "Port 11213"); NagSNMP::SNMP::Indexed->register_snmpd($agent);
+#
+
 package NagSNMP::SNMP::Indexed;
 
 use Log::Log4perl;

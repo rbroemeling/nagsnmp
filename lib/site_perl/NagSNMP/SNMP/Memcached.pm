@@ -22,6 +22,11 @@
 # THE SOFTWARE.
 #
 
+#
+# Example Usage (in snmpd.conf):
+#   perl require NagSNMP::SNMP::Memcached; $nagsnmp_memcached = NagSNMP::SNMP::Memcached->new(); $nagsnmp_memcached->register_snmpd($agent);
+#
+
 package NagSNMP::SNMP::Memcached;
 
 use Log::Log4perl;
