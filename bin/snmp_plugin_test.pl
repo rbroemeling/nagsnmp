@@ -26,7 +26,7 @@
 use Log::Log4perl;
 use strict;
 
-Log::Log4perl::init_once('/etc/log4perl.conf');
+Log::Log4perl::init_once(\*DATA);
 my $logger = Log::Log4perl->get_logger('interactive_script');
 
 if (! scalar(@ARGV))
@@ -82,3 +82,30 @@ foreach my $snmp_plugin (@ARGV)
 		$logger->error('Loading of ' . $snmp_plugin . ' failed');
 	}
 }
+
+__DATA__
+log4perl.oneMessagePerAppender                       = 1
+
+log4perl.logger.daemon                               = INFO, Syslog
+log4perl.logger.debug                                = TRACE, ScreenOut
+log4perl.logger.interactive_script                   = INFO, ScreenOut
+log4perl.logger.script                               = INFO, ScreenErr, Syslog
+
+log4perl.appender.ScreenErr                          = Log::Log4perl::Appender::ScreenColoredLevels
+log4perl.appender.ScreenErr.layout                   = Log::Log4perl::Layout::PatternLayout
+log4perl.appender.ScreenErr.layout.ConversionPattern = %d [%p] %F:%L %m%n
+log4perl.appender.ScreenErr.stderr                   = 1
+log4perl.appender.ScreenErr.Threshold                = WARN
+
+log4perl.appender.ScreenOut                          = Log::Log4perl::Appender::ScreenColoredLevels
+log4perl.appender.ScreenOut.layout                   = Log::Log4perl::Layout::PatternLayout
+log4perl.appender.ScreenOut.layout.ConversionPattern = %d [%p] %F:%L %m%n
+log4perl.appender.ScreenOut.stderr                   = 0
+
+log4perl.appender.Syslog                             = Log::Dispatch::Syslog
+log4perl.appender.Syslog.facility                    = user
+log4perl.appender.Syslog.ident                       = sub { use File::Basename; return basename($0); }
+log4perl.appender.Syslog.layout                      = Log::Log4perl::Layout::PatternLayout
+log4perl.appender.Syslog.layout.ConversionPattern    = [%L/%p] %m%n
+log4perl.appender.Syslog.logopt                      = nofatal
+log4perl.appender.Syslog.Threshold                   = INFO
