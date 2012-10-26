@@ -27,7 +27,7 @@
 use Log::Log4perl;
 use strict;
 
-push(@INC, './lib/site_perl');
+unshift(@INC, './lib/site_perl');
 
 Log::Log4perl::init_once(\*DATA);
 my $logger = Log::Log4perl->get_logger('interactive_script');
