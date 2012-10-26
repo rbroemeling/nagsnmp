@@ -80,7 +80,7 @@ sub update_cache($)
   $self->{cache}->{$self->{source_oid} . '.1'}->{value} = 0;
   $self->{cache}->{$self->{source_oid} . '.2'}->{value} = 0;
   while (<POSTQUEUE>) {
-    if (/^([0-9A-F]{11,})([*!]?)/) {
+    if (/^([0-9A-F]{8,})([*!]?)/) {
       if ($2 eq "*") {
         $self->{logger}->debug('Postfix Queue ID ' . $1 . ': ACTIVE QUEUE');
         $self->{cache}->{$self->{source_oid} . '.0'}->{value} += 1;
