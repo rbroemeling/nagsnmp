@@ -59,10 +59,10 @@ sub new($;$)
 		# An array of OIDs sorted from lowest to highest.  Needed to answer a GETNEXT request.
 		sorted_oid => [],
 
-		# The OID prefix that this module is responsible for.
-		#  .iso.org.dod.internet.private.enterprises.6396742
-		#  .iso.org.dod.internet.private.enterprises.NEXOPIA
-		source_oid => '.1.3.6.1.4.1.6396742'
+		# The OID prefix that this module is responsible for, a PEN assigned by
+		# IANA for the NagSNMP project ( http://www.iana.org/assignments/enterprise-numbers ).
+		#  .iso.org.dod.internet.private.enterprises.40774
+		source_oid => '.1.3.6.1.4.1.40774'
 	};
 
 	# Update our logger-singleton with a new environment for this class unless we have been
